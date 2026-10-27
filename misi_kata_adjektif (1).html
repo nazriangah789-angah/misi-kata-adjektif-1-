@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISI KATA ADJEKTIF: PENGEMBARAAN BAHASA DI BIKINI BOTTOM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Cartoon Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Luckiest+Guy&family=Nunito:wght@400;700;900&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe Vision and Camera Utilities -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --sb-yellow: #facc15;
+            --sb-blue: #0284c7;
+            --sb-pink: #ec4899;
+            --sb-green: #22c55e;
+            --sb-teal: #06b6d4;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #032b43;
+            color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3, .font-fun, .sb-title {
+            font-family: 'Luckiest Guy', 'Fredoka', cursive;
+            letter-spacing: 1px;
+        }
+
+        .font-bubble {
+            font-family: 'Bubblegum Sans', 'Fredoka', cursive;
+        }
+
+        /* Underwater background atmosphere */
+        .ocean-bg {
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #0c4a6e 80%, #072ac8 100%);
+        }
+
+        /* Underwater Sunbeams Caustics */
+        .sunbeam {
+            position: absolute;
+            top: -10%;
+            width: 120%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                75deg,
+                rgba(255, 255, 255, 0.12) 0px,
+                rgba(255, 255, 255, 0.12) 40px,
+                transparent 40px,
+                transparent 100px
+            );
+            filter: blur(8px);
+            animation: beamMove 8s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes beamMove {
+            0% { transform: translateX(-5%) skewX(-5deg); opacity: 0.7; }
+            100% { transform: translateX(5%) skewX(5deg); opacity: 0.9; }
+        }
+
+        /* Bikini Bottom Glassmorphism & Cartoon UI Panels */
+        .glass-panel {
+            background: rgba(8, 47, 73, 0.85);
+            backdrop-filter: blur(14px);
+            border: 3.5px solid #facc15;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(250, 204, 21, 0.2);
+            border-radius: 24px;
+        }
+
+        .cartoon-card {
+            background: linear-gradient(135deg, rgba(14, 116, 144, 0.9), rgba(3, 105, 161, 0.95));
+            border: 3px solid #38bdf8;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-radius: 20px;
+        }
+
+        /* Virtual Button hover state from pointer cursor */
+        .virtual-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 0 #b45309, 0 10px 20px rgba(0,0,0,0.4);
+            border: 3px solid #fef08a;
+        }
+        .virtual-btn:active, .virtual-btn.hovered {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px #facc15, 0 6px 0 #b45309;
+            border-color: #ffffff;
+        }
+
+        /* Falling Bubble Animations */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: inset -8px -8px 20px rgba(0,0,0,0.25), inset 8px 8px 20px rgba(255,255,255,0.7), 0 8px 20px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            font-family: 'Fredoka', cursive;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+            animation: bubbleWiggle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes bubbleWiggle {
+            0% { transform: rotate(-3deg); }
+            100% { transform: rotate(3deg); }
+        }
+
+        .bubble-pop {
+            animation: pop 0.35s ease-out forwards;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.9; filter: brightness(1.5); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Particle Splashes */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: particleFly 0.6s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+
+        /* Mirror video view for realistic interaction */
+        .mirror {
+            transform: scaleX(-1);
+        }
+
+        /* Background Animated Seaweed */
+        .seaweed {
+            position: absolute;
+            bottom: -10px;
+            transform-origin: bottom center;
+            animation: sway 4s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 2;
+        }
+        @keyframes sway {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+        /* Drifting Ambient Background Bubbles */
+        .bg-bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.4);
+            pointer-events: none;
+            animation: rise 10s linear infinite;
+            z-index: 2;
+        }
+        @keyframes rise {
+            0% { transform: translateY(105vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.7; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* Text Stroke Effects */
+        .text-stroke {
+            -webkit-text-stroke: 2px #0f172a;
+        }
+        .text-stroke-yellow {
+            -webkit-text-stroke: 2px #78350f;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(3, 105, 161, 0.5);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #facc15;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen relative overflow-hidden flex flex-col justify-between select-none ocean-bg">
+
+    <!-- UNDERWATER BACKGROUND DECORATIONS -->
+    <div class="sunbeam"></div>
+
+    <!-- Ambient Floating Bubbles -->
+    <div id="bg-bubbles-container" class="absolute inset-0 pointer-events-none z-1 overflow-hidden"></div>
+
+    <!-- Seaweed & Coral Silhouettes at Bottom Edge -->
+    <div class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-2 flex justify-between items-end px-4 opacity-80">
+        <!-- SpongeBob's Pineapple Silhouette/Illustration -->
+        <svg class="w-24 h-32 md:w-32 md:h-40 text-yellow-500/90 drop-shadow-lg" viewBox="0 0 100 130" fill="currentColor">
+            <path d="M50 20 Q30 5 10 25 Q35 25 30 40 Q50 30 50 40 Q60 25 80 25 Q65 10 50 20 Z" fill="#22c55e"/>
+            <ellipse cx="50" cy="80" rx="35" ry="45" fill="#f59e0b"/>
+            <!-- Hatch lines for pineapple -->
+            <path d="M25 60 L75 100 M25 100 L75 60 M20 80 L80 80" stroke="#b45309" stroke-width="3"/>
+            <circle cx="50" cy="75" r="10" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+            <rect x="42" y="100" width="16" height="25" rx="3" fill="#78350f"/>
+        </svg>
+
+        <!-- Swaying Seaweed Left -->
+        <svg class="seaweed w-16 h-40 text-emerald-500" style="left: 15%; animation-delay: 0s;" viewBox="0 0 50 150">
+            <path d="M25 150 Q10 100 35 60 T25 0 Q40 50 15 100 T25 150 Z" fill="currentColor"/>
+        </svg>
+
+        <!-- Patrick's Rock Silhouette -->
+        <svg class="w-20 h-20 text-amber-800/80 mb-2" viewBox="0 0 100 80" fill="currentColor">
+            <path d="M10 80 Q20 20 50 15 Q80 20 90 80 Z" fill="#7c2d12"/>
+            <polygon points="50,15 45,5 55,5" fill="#f59e0b"/>
+        </svg>
+
+        <!-- Swaying Seaweed Right -->
+        <svg class="seaweed w-20 h-48 text-teal-400" style="right: 18%; animation-delay: -2s;" viewBox="0 0 50 150">
+            <path d="M25 150 Q40 100 15 60 T25 0 Q10 50 35 100 T25 150 Z" fill="currentColor"/>
+        </svg>
+
+        <!-- Squidward Tiki House Silhouette -->
+        <svg class="w-20 h-36 text-cyan-900/90 drop-shadow-md" viewBox="0 0 80 140" fill="currentColor">
+            <rect x="15" y="30" width="50" height="100" rx="15" fill="#1e3a8a"/>
+            <circle cx="30" cy="55" r="8" fill="#facc15"/>
+            <circle cx="50" cy="55" r="8" fill="#facc15"/>
+            <rect x="35" y="65" width="10" height="30" fill="#1e3a8a" stroke="#0284c7" stroke-width="2"/>
+            <rect x="28" y="105" width="24" height="25" fill="#0f172a"/>
+        </svg>
+    </div>
+
+    <!-- CAMERA LAYER (Full Screen Base Live View) -->
+    <div id="camera-container" class="absolute inset-0 w-full h-full z-0 bg-slate-950">
+        <video id="webcam" class="w-full h-full object-cover mirror" playsinline autoplay muted></video>
+        <canvas id="output_canvas" class="absolute inset-0 w-full h-full object-cover mirror z-10"></canvas>
+    </div>
+
+    <!-- VIRTUAL CURSOR LAYER -->
+    <div id="cursor-layer" class="absolute inset-0 z-50 pointer-events-none">
+        <div id="virtual-cursor" class="w-10 h-10 rounded-full border-4 border-yellow-300 bg-yellow-400/50 fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 flex items-center justify-center hidden shadow-[0_0_20px_#facc15]">
+            <!-- Jellyfish/Sponge Icon inside cursor -->
+            <i class="fa-solid fa-hand-pointer text-xs text-amber-950"></i>
+        </div>
+    </div>
+
+    <!-- MAIN UI OVERLAY LAYER -->
+    <div id="ui-layer" class="absolute inset-0 z-20 flex flex-col justify-between p-3 sm:p-5 pointer-events-none">
+        
+        <!-- HEADER / STATUS PANEL (Floating Top Left) -->
+        <div id="top-bar" class="flex justify-between items-start w-full gap-2">
+            <div class="glass-panel p-2.5 sm:p-3.5 rounded-3xl flex items-center space-x-3 max-w-xs sm:max-w-md pointer-events-auto shadow-2xl">
+                <!-- Score Trophy -->
+                <div class="bg-gradient-to-br from-yellow-300 to-amber-500 text-slate-950 font-black p-2.5 sm:p-3 rounded-2xl flex items-center space-x-2 shadow-lg border-2 border-white">
+                    <i class="fa-solid fa-trophy text-xl sm:text-2xl text-amber-900 animate-bounce"></i>
+                    <div>
+                        <div class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-950">MARKAH</div>
+                        <div id="score-text" class="text-xl sm:text-2xl font-black text-slate-950 leading-none">0 / 110</div>
+                    </div>
+                </div>
+                <div>
+                    <div id="section-badge" class="text-[10px] sm:text-xs font-black text-yellow-300 uppercase tracking-widest bg-cyan-900/80 px-2 py-0.5 rounded-full border border-cyan-400 inline-block mb-1">MISI KATA ADJEKTIF</div>
+                    <div id="progress-text" class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                        Sedia untuk Bermula
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTION BOX (Floating Top Right Compact Panel) -->
+            <div id="question-box" class="glass-panel p-3.5 sm:p-4 rounded-3xl w-full max-w-xs sm:max-w-sm hidden pointer-events-auto border-4 border-yellow-400 shadow-2xl bg-slate-900/85">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="question-number" class="bg-yellow-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow">Soalan 1</span>
+                    <span id="detection-hint" class="text-[11px] font-black text-cyan-300 bg-slate-800/90 px-2.5 py-1 rounded-full border border-cyan-500/50 flex items-center gap-1">
+                        <i class="fa-solid fa-hand text-yellow-400"></i> Gunakan Jari
+                    </span>
+                </div>
+                <h3 id="question-title" class="text-xs sm:text-sm font-bold text-white mb-2 leading-relaxed bg-cyan-950/70 p-2.5 rounded-2xl border border-cyan-500/30">Soalan akan dipaparkan di sini.</h3>
+                <div id="options-container" class="space-y-1.5 text-xs">
+                    <!-- Options populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- BUBBLE CONTAINER (Bahagian 3) -->
+        <div id="bubble-area" class="absolute inset-0 z-30 pointer-events-auto overflow-hidden hidden"></div>
+
+        <!-- CENTER FEEDBACK POPUP -->
+        <div id="center-feedback" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center pointer-events-none hidden w-full max-w-md px-4">
+            <div id="feedback-card" class="glass-panel p-6 rounded-3xl border-4 border-yellow-400 shadow-2xl animate-bounce bg-slate-900/95">
+                <div id="feedback-icon" class="text-6xl mb-2 drop-shadow-md">🎉</div>
+                <h2 id="feedback-title" class="text-2xl font-black text-yellow-300 uppercase mb-1 sb-title">TAHNIAH!</h2>
+                <p id="feedback-msg" class="text-sm font-bold text-slate-100">Jawapan kamu tepat sekali!</p>
+            </div>
+        </div>
+
+        <!-- NOTIFICATION / ALERT MODAL (Replaces alert()) -->
+        <div id="custom-modal" class="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto hidden">
+            <div class="glass-panel p-6 rounded-3xl max-w-sm w-full text-center border-4 border-yellow-400 shadow-2xl bg-slate-900/95">
+                <div id="modal-icon" class="text-5xl mb-3">🔔</div>
+                <h3 id="modal-title" class="text-xl font-black text-yellow-300 sb-title mb-2">MAKLUMAT</h3>
+                <p id="modal-message" class="text-xs text-slate-200 font-bold mb-5 leading-relaxed"></p>
+                <button id="btn-close-modal" class="virtual-btn bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-xs px-6 py-2.5 rounded-xl">
+                    OK
+                </button>
+            </div>
+        </div>
+
+        <!-- FULL MODAL SCREEN OVERLAYS (Intro, Learn, Guide, Setup, Results) -->
+        <div id="screen-overlay" class="absolute inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto overflow-y-auto">
+            
+            <!-- 1. INTRO SCREEN -->
+            <div id="screen-intro" class="glass-panel p-6 sm:p-8 rounded-3xl max-w-xl w-full text-center border-4 border-yellow-400 shadow-2xl my-auto relative overflow-hidden bg-slate-900/90">
+                
+                <!-- Floating Decorative Jellyfish Badges -->
+                <div class="absolute -top-6 -left-6 w-16 h-16 bg-pink-500/30 rounded-full blur-xl"></div>
+                
+                <div class="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-3 shadow-md border border-white">
+                    <i class="fa-solid fa-star text-amber-900 mr-1"></i> Bahasa Melayu Tahun 5
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl font-black text-yellow-300 mb-2 leading-tight sb-title text-stroke-yellow drop-shadow-lg">
+                    MISI KATA ADJEKTIF
+                </h1>
+                <h2 class="text-lg sm:text-2xl font-black text-cyan-300 mb-5 font-bubble tracking-wide">
+                    🌊 Pengembaraan Bahasa di Bikini Bottom 🍍
+                </h2>
+
+                <!-- Character Banner Visuals -->
+                <div class="flex justify-center items-center gap-4 mb-6">
+                    <div class="bg-yellow-400/20 p-3 rounded-2xl border-2 border-yellow-400 flex items-center gap-2">
+                        <span class="text-3xl">🧽</span>
+                        <span class="text-xs font-bold text-yellow-200">SpongeBob</span>
+                    </div>
+                    <div class="bg-pink-500/20 p-3 rounded-2xl border-2 border-pink-400 flex items-center gap-2">
+                        <span class="text-3xl">⭐</span>
+                        <span class="text-xs font-bold text-pink-200">Patrick</span>
+                    </div>
+                    <div class="bg-cyan-500/20 p-3 rounded-2xl border-2 border-cyan-400 flex items-center gap-2">
+                        <span class="text-3xl">🐙</span>
+                        <span class="text-xs font-bold text-cyan-200">Squidward</span>
+                    </div>
+                </div>
+
+                <div class="bg-cyan-950/70 p-4 rounded-2xl border-2 border-cyan-500/40 mb-6 text-xs sm:text-sm text-cyan-100 leading-relaxed font-semibold">
+                    Selamat datang ke Bikini Bottom! Bersedia untuk menguji pengetahuan kata adjektif kamu melalui kawalan kamera, gerak jari dan badan yang menyeronokkan!
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="btn-start-intro" class="virtual-btn bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-lg sm:text-xl px-8 py-4 rounded-2xl flex items-center gap-3 cursor-pointer">
+                        <span>MULA PENGEMBARAAN</span>
+                        <i class="fa-solid fa-circle-play text-2xl text-amber-950"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. LEARNING SCREEN (Jom Kenali Kata Adjektif!) -->
+            <div id="screen-learn" class="glass-panel p-5 sm:p-6 rounded-3xl max-w-3xl w-full border-4 border-cyan-400 hidden my-auto max-h-[92vh] overflow-y-auto bg-slate-900/95">
+                <div class="text-center mb-4">
+                    <h2 class="text-2xl sm:text-3xl font-black text-yellow-300 sb-title">JOM KENALI KATA ADJEKTIF!</h2>
+                    <p class="text-xs text-cyan-200 bg-cyan-950/80 p-2.5 rounded-xl border border-cyan-500/40 inline-block mt-1 font-semibold">
+                        💡 Kata adjektif ialah perkataan yang menerangkan sifat atau keadaan sesuatu kata nama.
+                    </p>
+                </div>
+
+                <!-- Underwater Blackboard Grid Categories -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs mb-5">
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">🎨</span>
+                                <span class="font-black text-yellow-300">A. Warna</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Merah, Biru, Kuning</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Baju SpongeBob <u class="text-yellow-300">kuning</u>.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">⚽</span>
+                                <span class="font-black text-yellow-300">B. Bentuk</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Bulat, Lonjong, Leper</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Cengkerang yang <u class="text-yellow-300">bulat</u>.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">📏</span>
+                                <span class="font-black text-yellow-300">C. Ukuran</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Panjang, Pendek, Tinggi</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Rumpai laut yang <u class="text-yellow-300">tinggi</u>.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">🌟</span>
+                                <span class="font-black text-yellow-300">D. Sifatan / Keadaan</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Baik, Rajin, Bersih</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Murid yang <u class="text-yellow-300">rajin</u>.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">😀</span>
+                                <span class="font-black text-yellow-300">E. Perasaan</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Gembira, Sedih, Rindu</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Patrick berasa <u class="text-yellow-300">gembira</u>.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between border-2 border-yellow-400">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">👅</span>
+                                <span class="font-black text-yellow-300">F. Pancaindera</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Manis, Masam, Harum, Merdu, Busuk</p>
+                        </div>
+                        <span class="text-[10px] text-yellow-300 mt-2 font-bold">Fokus Bahagian 3!</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">⏰</span>
+                                <span class="font-black text-yellow-300">G. Waktu</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Awal, Lewat, Baru</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Tiba <u class="text-yellow-300">awal</u> di sekolah.</span>
+                    </div>
+
+                    <div class="cartoon-card p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xl">🚀</span>
+                                <span class="font-black text-yellow-300">H. Cara & Jarak</span>
+                            </div>
+                            <p class="text-slate-200 font-medium">Contoh: Jauh, Dekat, Laju, Perlahan</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-300 mt-2 font-bold">Ikan berenang <u class="text-yellow-300">laju</u>.</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="btn-learn-next" class="virtual-btn bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-sm sm:text-base px-6 py-3 rounded-2xl flex items-center gap-2">
+                        <span>SAYA SUDAH FAHAM — MULA PENGEMBARAAN</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. HOW TO PLAY GUIDE -->
+            <div id="screen-guide" class="glass-panel p-6 rounded-3xl max-w-2xl w-full border-4 border-yellow-400 hidden my-auto max-h-[90vh] overflow-y-auto bg-slate-900/95">
+                <h2 class="text-2xl font-black text-yellow-300 text-center mb-4 sb-title">PANDUAN CARA BERMAIN</h2>
+                
+                <div class="space-y-3.5 text-xs">
+                    <!-- Sec 1 -->
+                    <div class="bg-slate-800/90 p-3.5 rounded-2xl border-l-8 border-yellow-400 flex items-start gap-3">
+                        <div class="text-3xl">🖐️</div>
+                        <div>
+                            <h3 class="font-black text-yellow-300 text-sm mb-0.5">BAHAGIAN 1: BILANGAN JARI</h3>
+                            <p class="text-slate-200 mb-1">Angkat bilangan jari di hadapan kamera untuk memilih jawapan A, B, C atau D:</p>
+                            <div class="grid grid-cols-2 gap-2 font-bold text-cyan-200 bg-slate-900/60 p-2 rounded-xl">
+                                <div>1 Jari = Pilihan A</div>
+                                <div>2 Jari = Pilihan B</div>
+                                <div>3 Jari = Pilihan C</div>
+                                <div>4 Jari = Pilihan D</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sec 2 -->
+                    <div class="bg-slate-800/90 p-3.5 rounded-2xl border-l-8 border-cyan-400 flex items-start gap-3">
+                        <div class="text-3xl">🙆‍♂️</div>
+                        <div>
+                            <h3 class="font-black text-cyan-300 text-sm mb-0.5">BAHAGIAN 2: GERAKAN BADAN & TANGAN</h3>
+                            <p class="text-slate-200 mb-1">Gunakan posisi lengan & tangan kamu:</p>
+                            <div class="grid grid-cols-2 gap-2 font-bold text-yellow-200 bg-slate-900/60 p-2 rounded-xl">
+                                <div>Tangan Kiri = A</div>
+                                <div>Tangan Kanan = B</div>
+                                <div>Dua Hand Up = C</div>
+                                <div>Genggam Penumbuk ✊ = D</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sec 3 -->
+                    <div class="bg-slate-800/90 p-3.5 rounded-2xl border-l-8 border-pink-400 flex items-start gap-3">
+                        <div class="text-3xl">🫧</div>
+                        <div>
+                            <h3 class="font-black text-pink-300 text-sm mb-0.5">BAHAGIAN 3: CABARAN GELEMBUNG</h3>
+                            <p class="text-slate-200 leading-relaxed">
+                                1. Gerakkan jari telunjuk untuk mengawal kursor maya.<br>
+                                2. Halakan kursor ke gelembung kata adjektif pancaindera.<br>
+                                3. Rapatkan ibu jari & jari telunjuk (cubitan) untuk memecahkan gelembung!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-6">
+                    <button id="btn-guide-next" class="virtual-btn bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-sm px-6 py-3 rounded-2xl">
+                        SAYA FAHAM — SEDIAKAN KAMERA
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. CAMERA SETUP -->
+            <div id="screen-setup" class="glass-panel p-6 rounded-3xl max-w-lg w-full text-center border-4 border-cyan-400 hidden my-auto bg-slate-900/95">
+                <h2 class="text-2xl font-black text-yellow-300 mb-2 sb-title">SEDIAKAN DIRI KAMU!</h2>
+                <p class="text-xs text-slate-200 mb-4">Pastikan wajah, tangan dan badan kamu berada dalam kawasan kamera yang kelihatan.</p>
+
+                <div id="camera-status-box" class="bg-slate-950/80 p-4 rounded-2xl border-2 border-cyan-500/40 mb-4 text-xs space-y-2.5">
+                    <div id="status-cam-permission" class="flex items-center justify-between text-yellow-300">
+                        <span>Akses Kamera Live:</span>
+                        <span class="font-bold"><i class="fa-solid fa-spinner animate-spin"></i> Menyediakan...</span>
+                    </div>
+                    <div id="status-hand-detect" class="flex items-center justify-between text-slate-400">
+                        <span>Pengesanan Tangan MediaPipe:</span>
+                        <span class="font-bold">Menunggu...</span>
+                    </div>
+                    <div id="status-pose-detect" class="flex items-center justify-between text-slate-400">
+                        <span>Pengesanan Badan MediaPipe:</span>
+                        <span class="font-bold">Menunggu...</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button id="btn-start-game" class="virtual-btn bg-gradient-to-r from-green-400 to-emerald-600 text-slate-950 font-black text-base px-8 py-3.5 rounded-2xl shadow-lg border-2 border-white w-full opacity-50 cursor-not-allowed" disabled>
+                        MULA PERMAINAN (KAMERA)
+                    </button>
+                    <button id="btn-fallback-game" class="virtual-btn bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs px-6 py-2.5 rounded-2xl w-full border border-cyan-300">
+                        👆 MAIN TANPA KAMERA (SENTUH / TETIKUS)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. RESULTS SCREEN -->
+            <div id="screen-results" class="glass-panel p-6 sm:p-8 rounded-3xl max-w-xl w-full text-center border-4 border-yellow-400 shadow-2xl hidden my-auto bg-slate-900/95">
+                <div class="text-5xl mb-2">🎉</div>
+                <h2 id="badge-title" class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2 sb-title">JUARA BAHASA BIKINI BOTTOM</h2>
+                <p id="badge-desc" class="text-xs sm:text-sm font-semibold text-slate-200 mb-6 bg-cyan-950/80 p-3 rounded-2xl border border-cyan-500/40 leading-relaxed"></p>
+
+                <!-- Total Score Display -->
+                <div class="bg-gradient-to-br from-yellow-300 to-amber-500 p-4 rounded-2xl border-2 border-white shadow-lg mb-6 text-slate-950">
+                    <div class="text-xs font-black uppercase tracking-wider text-amber-950">JUMLAH MARKAH KESELURUHAN</div>
+                    <div id="final-total-score" class="text-4xl font-black leading-none mt-1">0 / 110</div>
+                </div>
+
+                <!-- Breakdown of Scores -->
+                <div class="grid grid-cols-3 gap-2.5 text-xs font-bold mb-6">
+                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700">
+                        <div class="text-[10px] text-cyan-300">BAHAGIAN 1</div>
+                        <div id="final-score-b1" class="text-base text-yellow-300 font-black">0 / 50</div>
+                    </div>
+                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700">
+                        <div class="text-[10px] text-cyan-300">BAHAGIAN 2</div>
+                        <div id="final-score-b2" class="text-base text-yellow-300 font-black">0 / 50</div>
+                    </div>
+                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700">
+                        <div class="text-[10px] text-cyan-300">BAHAGIAN 3</div>
+                        <div id="final-score-b3" class="text-base text-yellow-300 font-black">0 / 10</div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button id="btn-replay" class="virtual-btn bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-sm px-6 py-3 rounded-2xl flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>MAIN SEMULA</span>
+                    </button>
+                    <button id="btn-exit" class="virtual-btn bg-slate-800 text-slate-200 font-black text-sm px-6 py-3 rounded-2xl border border-slate-600 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house"></i>
+                        <span>SKRIN UTAMA</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ACTION BUTTON CONTAINER FOR FLOATING NEXT QUESTION -->
+        <div id="floating-btn-container" class="absolute bottom-6 right-6 z-40 pointer-events-auto hidden">
+            <button id="btn-next-question" class="virtual-btn bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-base px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-white flex items-center gap-2 cursor-pointer">
+                <span>SOALAN SETERUSNYA</span>
+                <i class="fa-solid fa-arrow-right text-lg"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- AUDIO EFFECTS SYNTHESIZER (Web Audio API) -->
+    <script>
+        const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            try {
+                if (AudioCtx.state === 'suspended') AudioCtx.resume();
+                const osc = AudioCtx.createOscillator();
+                const gain = AudioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(AudioCtx.destination);
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, AudioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(200, AudioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.4, AudioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, AudioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(AudioCtx.currentTime + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, AudioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, AudioCtx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, AudioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.3, AudioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, AudioCtx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(AudioCtx.currentTime + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, AudioCtx.currentTime);
+                    osc.frequency.setValueAtTime(150, AudioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, AudioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(AudioCtx.currentTime + 0.3);
+                }
+            } catch(e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        // Spawn ambient background bubbles
+        const bgContainer = document.getElementById('bg-bubbles-container');
+        for(let i=0; i<15; i++) {
+            const b = document.createElement('div');
+            b.className = 'bg-bubble';
+            const sz = Math.random() * 25 + 10;
+            b.style.width = `${sz}px`;
+            b.style.height = `${sz}px`;
+            b.style.left = `${Math.random() * 100}%`;
+            b.style.animationDelay = `${Math.random() * 8}s`;
+            b.style.animationDuration = `${Math.random() * 6 + 6}s`;
+            bgContainer.appendChild(b);
+        }
+    </script>
+
+    <!-- GAME ENGINE LOGIC & MEDIAPIPE PIPELINE -->
+    <script>
+        // --- GAME STATE ---
+        const gameState = {
+            currentStage: 'INTRO', // INTRO, LEARN, GUIDE, SETUP, PART1, PART2, PART3, RESULTS
+            currentQuestionIdx: 0,
+            scorePart1: 0,
+            scorePart2: 0,
+            scorePart3: 0,
+            totalScore: 0,
+            part3CorrectFound: 0,
+            part3FoundSet: new Set(),
+            isAnswerLocked: false,
+            holdCounter: 0,
+            detectedPoseGesture: null,
+            detectedFingerCount: 0,
+            isPinching: false,
+            cursorPos: { x: 0, y: 0 },
+            activeBubbles: [],
+            bubbleInterval: null,
+            cameraReady: false,
+            manualMode: false
+        };
+
+        // Custom Modal Function (Replaces native alert)
+        function showModalNotice(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-close-modal').onclick = () => {
+            document.getElementById('custom-modal').classList.add('hidden');
+        };
+
+        // Track mouse/touch cursor for fallback and virtual clicks
+        window.addEventListener('mousemove', (e) => {
+            if (gameState.manualMode) {
+                gameState.cursorPos = { x: e.clientX, y: e.clientY };
+            }
+        });
+        window.addEventListener('touchmove', (e) => {
+            if (gameState.manualMode && e.touches.length > 0) {
+                gameState.cursorPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+        });
+
+        // --- QUESTIONS DATA ---
+        const questionsPart1 = [
+            {
+                id: 1,
+                sentence: "“Adik memakai baju biru.”",
+                title: "Apakah kata adjektif dalam ayat tersebut?",
+                options: ["A. Adik", "B. Memakai", "C. Baju", "D. Biru"],
+                correct: 4, // D
+                explanation: "Biru ialah kata adjektif warna yang menerangkan warna baju."
+            },
+            {
+                id: 2,
+                sentence: "“Roda basikal itu berbentuk ______.”",
+                title: "Pilih kata adjektif yang paling sesuai.",
+                options: ["A. Bulat", "B. Lebar", "C. Nipis", "D. Panjang"],
+                correct: 1, // A
+                explanation: "Bulat ialah kata adjektif bentuk yang menerangkan bentuk roda."
+            },
+            {
+                id: 3,
+                sentence: "“Buah limau itu masam.”",
+                title: "Apakah jenis kata adjektif bagi perkataan masam?",
+                options: ["A. Warna", "B. Bentuk", "C. Pancaindera", "D. Ukuran"],
+                correct: 3, // C
+                explanation: "Masam ialah kata adjektif pancaindera yang berkaitan dengan deria rasa."
+            },
+            {
+                id: 4,
+                sentence: "“Cuaca di padang sangat panas.”",
+                title: "Apakah kata adjektif yang berlawanan makna dengan panas?",
+                options: ["A. Suam", "B. Sejuk", "C. Hangat", "D. Terik"],
+                correct: 2, // B
+                explanation: "Sejuk ialah kata adjektif yang berlawanan makna dengan panas."
+            },
+            {
+                id: 5,
+                sentence: "Pilih satu kata adjektif ukuran.",
+                title: "Yang manakah kata adjektif ukuran?",
+                options: ["A. Panjang", "B. Bulat", "C. Biru", "D. Manis"],
+                correct: 1, // A
+                explanation: "Panjang ialah kata adjektif ukuran yang menerangkan ukuran sesuatu benda."
+            }
+        ];
+
+        const questionsPart2 = [
+            {
+                id: 6,
+                sentence: "“Amir seorang murid yang ______ kerana dia sentiasa bercakap benar.”",
+                title: "Isi tempat kosong dengan kata adjektif yang sesuai.",
+                options: ["A. Berani 🙋‍♀️", "B. Rajin 🙋‍♂️", "C. Jujur 🙆‍♂️", "D. Ramah ✊"],
+                correct: 3, // C -> Both Hands Raised
+                gestureName: "Angkat Kedua-dua Tangan",
+                explanation: "Jujur ialah kata adjektif sifatan yang menerangkan sifat seseorang yang bercakap benar."
+            },
+            {
+                id: 7,
+                sentence: "“Kami tiba awal di sekolah.”",
+                title: "Apakah jenis kata adjektif bagi perkataan awal?",
+                options: ["A. Cara 🙋‍♀️", "B. Waktu 🙋‍♂️", "C. Jarak 🙆‍♂️", "D. Ukuran ✊"],
+                correct: 2, // B -> Raise Right Hand
+                gestureName: "Angkat Tangan Kanan",
+                explanation: "Awal ialah kata adjektif waktu yang menerangkan masa."
+            },
+            {
+                id: 8,
+                sentence: "“Sup itu terlalu ______ kerana ibu memasukkan garam secara berlebihan.”",
+                title: "Pilih kata adjektif yang paling tepat.",
+                options: ["A. Tawar 🙋‍♀️", "B. Manis 🙋‍♂️", "C. Masam 🙆‍♂️", "D. Masin ✊"],
+                correct: 4, // D -> Fist Gesture ✊
+                gestureName: "Genggam Tangan Menjadi Penumbuk ✊",
+                explanation: "Masin ialah kata adjektif pancaindera yang berkaitan dengan deria rasa."
+            },
+            {
+                id: 9,
+                sentence: "Kata Adjektif: jauh, laju, rindu",
+                title: "Apakah pengelasan yang betul mengikut urutan?",
+                options: [
+                    "A. Jarak – cara – perasaan 🙋‍♀️",
+                    "B. Cara – jarak – perasaan 🙋‍♂️",
+                    "C. Jarak – perasaan – cara 🙆‍♂️",
+                    "D. Ukuran – cara – sifatan ✊"
+                ],
+                correct: 1, // A -> Raise Left Hand
+                gestureName: "Angkat Tangan Kiri",
+                explanation: "Jauh ialah kata adjektif jarak, laju ialah kata adjektif cara dan rindu ialah kata adjektif perasaan."
+            },
+            {
+                id: 10,
+                sentence: "“Bunga melur itu berbau ______, manakala sampah yang mereput itu berbau ______.”",
+                title: "Pilih pasangan kata adjektif pancaindera yang betul.",
+                options: [
+                    "A. Busuk; harum 🙋‍♀️",
+                    "B. Harum; merdu 🙋‍♂️",
+                    "C. Harum; busuk 🙆‍♂️",
+                    "D. Merdu; busuk ✊"
+                ],
+                correct: 3, // C -> Both Hands Raised
+                gestureName: "Angkat Kedua-dua Tangan",
+                explanation: "Harum dan busuk ialah kata adjektif pancaindera yang berkaitan dengan deria bau."
+            }
+        ];
+
+        // Part 3 Target Words
+        const part3CorrectWords = ["MANIS", "MASAM", "HARUM", "MERDU", "BUSUK"];
+        const part3WrongWords = ["MEJA", "BERLARI", "SEKOLAH", "BUKU", "MAKAN", "KERUSI", "TIDUR", "PENSEL", "MEMBACA", "KUCING", "CANTIK", "RAJIN", "TINGGI", "MERAH", "GEMBIRA"];
+
+        // --- DOM ELEMENTS ---
+        const videoElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const virtualCursor = document.getElementById('virtual-cursor');
+        const screenOverlay = document.getElementById('screen-overlay');
+        const questionBox = document.getElementById('question-box');
+        const centerFeedback = document.getElementById('center-feedback');
+        const bubbleArea = document.getElementById('bubble-area');
+        const floatingBtnContainer = document.getElementById('floating-btn-container');
+        const btnNextQuestion = document.getElementById('btn-next-question');
+
+        // --- MEDIAPIPE INITIALIZATION ---
+        let handsDetector, poseDetector, cameraController;
+
+        function initMediaPipe() {
+            try {
+                handsDetector = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+                handsDetector.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                handsDetector.onResults(onHandsResults);
+
+                poseDetector = new Pose({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+                });
+                poseDetector.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                poseDetector.onResults(onPoseResults);
+
+                // Set canvas size
+                canvasElement.width = window.innerWidth;
+                canvasElement.height = window.innerHeight;
+
+                // Start Camera Stream
+                navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    videoElement.onloadedmetadata = () => {
+                        videoElement.play();
+                        document.getElementById('status-cam-permission').innerHTML = `<span>Akses Kamera Live:</span> <span class="text-green-400 font-bold"><i class="fa-solid fa-check"></i> Sedia</span>`;
+                        
+                        // Enable start button directly once camera streams
+                        const btn = document.getElementById('btn-start-game');
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                        // Frame Loop
+                        async function processFrame() {
+                            if (videoElement.readyState >= 2) {
+                                await handsDetector.send({ image: videoElement });
+                                if (gameState.currentStage === 'PART2' || gameState.currentStage === 'SETUP') {
+                                    await poseDetector.send({ image: videoElement });
+                                }
+                            }
+                            requestAnimationFrame(processFrame);
+                        }
+                        processFrame();
+                    };
+                })
+                .catch((err) => {
+                    console.warn("Camera access failed:", err);
+                    document.getElementById('status-cam-permission').innerHTML = `<span>Akses Kamera Live:</span> <span class="text-red-400 font-bold"><i class="fa-solid fa-xmark"></i> Dihalang / Tiada Kamera</span>`;
+                    showModalNotice("Akses Kamera Terhalang", "Kamera tidak dapat diakses. Kamu boleh meneruskan permainan menggunakan sentuhan skrin / tetikus dengan menekan butang 'MAIN TANPA KAMERA'.");
+                });
+
+            } catch (err) {
+                console.error("MediaPipe initialization error:", err);
+            }
+        }
+
+        // Helper function to detect a tight closed fist from hand landmarks
+        function isFistGesture(landmarks) {
+            const isIndexCurled = landmarks[8].y > landmarks[6].y;
+            const isMiddleCurled = landmarks[12].y > landmarks[10].y;
+            const isRingCurled = landmarks[16].y > landmarks[14].y;
+            const isPinkyCurled = landmarks[20].y > landmarks[18].y;
+
+            const wrist = landmarks[0];
+            const distIndex = Math.hypot(landmarks[8].x - wrist.x, landmarks[8].y - wrist.y);
+            const distMiddle = Math.hypot(landmarks[12].x - wrist.x, landmarks[12].y - wrist.y);
+            const distRing = Math.hypot(landmarks[16].x - wrist.x, landmarks[16].y - wrist.y);
+            const distPinky = Math.hypot(landmarks[20].x - wrist.x, landmarks[20].y - wrist.y);
+
+            const isCloseToWrist = distIndex < 0.28 && distMiddle < 0.28 && distRing < 0.28 && distPinky < 0.28;
+
+            return isIndexCurled && isMiddleCurled && isRingCurled && isPinkyCurled && isCloseToWrist;
+        }
+
+        // --- HANDS PROCESSOR ---
+        function onHandsResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            let detectedFistInFrame = false;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                document.getElementById('status-hand-detect').innerHTML = `<span>Pengesanan Tangan MediaPipe:</span> <span class="text-green-400 font-bold"><i class="fa-solid fa-check"></i> Sedia</span>`;
+                
+                const landmarks = results.multiHandLandmarks[0];
+                
+                // Draw skeletal hand landmarks with bright underwater colors
+                if (window.drawConnectors && window.HAND_CONNECTIONS) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: 'rgba(250, 204, 21, 0.6)', lineWidth: 4 });
+                    drawLandmarks(canvasCtx, landmarks, { color: 'rgba(236, 72, 153, 0.9)', radius: 4 });
+                }
+
+                // Index Tip (8) & Thumb Tip (4)
+                const indexTip = landmarks[8];
+                const thumbTip = landmarks[4];
+
+                const cursorX = (1 - indexTip.x) * window.innerWidth;
+                const cursorY = indexTip.y * window.innerHeight;
+                
+                if (!gameState.manualMode) {
+                    gameState.cursorPos = { x: cursorX, y: cursorY };
+                    virtualCursor.style.left = `${cursorX}px`;
+                    virtualCursor.style.top = `${cursorY}px`;
+                    virtualCursor.classList.remove('hidden');
+                }
+
+                // Pinch Detection (Distance between thumb & index)
+                const distance = Math.hypot(indexTip.x - thumbTip.x, indexTip.y - thumbTip.y);
+                const isPinchingNow = distance < 0.06;
+
+                if (isPinchingNow && !gameState.isPinching) {
+                    gameState.isPinching = true;
+                    handleVirtualPinchClick(cursorX, cursorY);
+                } else if (!isPinchingNow) {
+                    gameState.isPinching = false;
+                }
+
+                // Check for Fist (✊) gesture for Option D in Part 2
+                detectedFistInFrame = isFistGesture(landmarks);
+
+                // Count raised fingers for Part 1
+                if (gameState.currentStage === 'PART1' && !gameState.isAnswerLocked) {
+                    const count = countRaisedFingers(landmarks);
+                    gameState.detectedFingerCount = count;
+                    checkPart1Answer(count);
+                }
+
+            } else {
+                if (!gameState.manualMode) {
+                    virtualCursor.classList.add('hidden');
+                }
+                gameState.isPinching = false;
+            }
+
+            gameState.detectedFist = detectedFistInFrame;
+            canvasCtx.restore();
+        }
+
+        function countRaisedFingers(landmarks) {
+            let count = 0;
+            if (landmarks[8].y < landmarks[6].y) count++;   // Index
+            if (landmarks[12].y < landmarks[10].y) count++; // Middle
+            if (landmarks[16].y < landmarks[14].y) count++; // Ring
+            if (landmarks[20].y < landmarks[18].y) count++; // Pinky
+            return count;
+        }
+
+        // --- POSE PROCESSOR ---
+        function onPoseResults(results) {
+            if (results.poseLandmarks) {
+                document.getElementById('status-pose-detect').innerHTML = `<span>Pengesanan Badan MediaPipe:</span> <span class="text-green-400 font-bold"><i class="fa-solid fa-check"></i> Sedia</span>`;
+
+                if (gameState.currentStage === 'PART2' && !gameState.isAnswerLocked) {
+                    const lm = results.poseLandmarks;
+                    const leftWrist = lm[15];
+                    const rightWrist = lm[16];
+                    const leftShoulder = lm[11];
+                    const rightShoulder = lm[12];
+
+                    const leftUp = leftWrist.y < leftShoulder.y;
+                    const rightUp = rightWrist.y < rightShoulder.y;
+
+                    let detected = null;
+
+                    if (gameState.detectedFist) {
+                        detected = 4; // Option D
+                    } else if (leftUp && rightUp) {
+                        detected = 3; // Option C
+                    } else if (leftUp) {
+                        detected = 1; // Option A
+                    } else if (rightUp) {
+                        detected = 2; // Option B
+                    }
+
+                    if (detected) {
+                        checkPart2Answer(detected);
+                    } else {
+                        gameState.holdCounter = 0;
+                    }
+                }
+            }
+        }
+
+        // --- VIRTUAL PINCH / CLICK INTERACTION LOGIC ---
+        function handleVirtualPinchClick(x, y) {
+            const buttons = document.querySelectorAll('.virtual-btn');
+            buttons.forEach(btn => {
+                if (btn.offsetParent !== null) {
+                    const rect = btn.getBoundingClientRect();
+                    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                        playSound('pop');
+                        createSplashParticles(x, y);
+                        btn.click();
+                    }
+                }
+            });
+
+            if (gameState.currentStage === 'PART3') {
+                const bubbles = document.querySelectorAll('.bubble');
+                bubbles.forEach(bubble => {
+                    const rect = bubble.getBoundingClientRect();
+                    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                        popBubble(bubble, x, y);
+                    }
+                });
+            }
+        }
+
+        function createSplashParticles(x, y) {
+            for(let i=0; i<8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 12 + 6;
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.backgroundColor = ['#facc15', '#38bdf8', '#ec4899', '#ffffff'][Math.floor(Math.random()*4)];
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 80 + 30;
+                p.style.setProperty('--dx', `${Math.cos(angle) * speed}px`);
+                p.style.setProperty('--dy', `${Math.sin(angle) * speed}px`);
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+            }
+        }
+
+        // --- NAVIGATION & UI FLOW ---
+        function switchScreen(screenName) {
+            screenOverlay.classList.remove('hidden');
+            document.getElementById('screen-intro').classList.add('hidden');
+            document.getElementById('screen-learn').classList.add('hidden');
+            document.getElementById('screen-guide').classList.add('hidden');
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+
+            if (screenName === 'INTRO') {
+                document.getElementById('screen-intro').classList.remove('hidden');
+            } else if (screenName === 'LEARN') {
+                document.getElementById('screen-learn').classList.remove('hidden');
+            } else if (screenName === 'GUIDE') {
+                document.getElementById('screen-guide').classList.remove('hidden');
+            } else if (screenName === 'SETUP') {
+                document.getElementById('screen-setup').classList.remove('hidden');
+            } else if (screenName === 'RESULTS') {
+                document.getElementById('screen-results').classList.remove('hidden');
+            } else if (screenName === 'GAME') {
+                screenOverlay.classList.add('hidden');
+            }
+            gameState.currentStage = screenName;
+        }
+
+        // --- GAME STAGE ENGINES ---
+
+        // Part 1: Questions
+        function startPart1() {
+            switchScreen('GAME');
+            gameState.currentStage = 'PART1';
+            gameState.currentQuestionIdx = 0;
+            questionBox.classList.remove('hidden');
+            document.getElementById('section-badge').innerText = "BAHAGIAN 1: BILANGAN JARI";
+            renderPart1Question();
+        }
+
+        function renderPart1Question() {
+            gameState.isAnswerLocked = false;
+            floatingBtnContainer.classList.add('hidden');
+            centerFeedback.classList.add('hidden');
+
+            const q = questionsPart1[gameState.currentQuestionIdx];
+            document.getElementById('question-number').innerText = `Soalan ${q.id} / 5`;
+            document.getElementById('question-title').innerText = `${q.sentence}\n${q.title}`;
+            document.getElementById('detection-hint').innerHTML = gameState.manualMode 
+                ? `<i class="fa-solid fa-pointer text-yellow-400"></i> Tekan Pilihan Jawapan`
+                : `<i class="fa-solid fa-hand text-yellow-400"></i> Angkat 1-4 Jari`;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const optDiv = document.createElement('button');
+                optDiv.className = `w-full text-left p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 flex justify-between items-center transition-all cursor-pointer font-bold text-slate-100 opt-item-${idx+1}`;
+                optDiv.innerHTML = `<span>${opt}</span>`;
+                
+                // Allow direct clicking on options for manual fallback
+                optDiv.onclick = () => {
+                    if (!gameState.isAnswerLocked) {
+                        selectManualAnswerPart1(idx + 1);
+                    }
+                };
+                optsContainer.appendChild(optDiv);
+            });
+
+            updateProgressUI();
+        }
+
+        function selectManualAnswerPart1(selectedIdx) {
+            gameState.isAnswerLocked = true;
+            const q = questionsPart1[gameState.currentQuestionIdx];
+            const isCorrect = selectedIdx === q.correct;
+
+            if (isCorrect) {
+                gameState.scorePart1 += 10;
+                playSound('correct');
+                showFeedback(true, "TAHNIAH! JAWAPAN BETUL!", q.explanation);
+            } else {
+                playSound('wrong');
+                showFeedback(false, "BELUM TEPAT!", `Jawapan betul: ${q.options[q.correct-1]}. ${q.explanation}`);
+            }
+
+            const opts = document.querySelectorAll('#options-container > button');
+            opts.forEach((el, i) => {
+                if (i + 1 === q.correct) el.className += " bg-green-600/90 border-green-300 font-black";
+                else if (i + 1 === selectedIdx) el.className += " bg-red-600/90 border-red-300";
+            });
+
+            updateProgressUI();
+            showNextButton(() => {
+                gameState.currentQuestionIdx++;
+                if (gameState.currentQuestionIdx < questionsPart1.length) {
+                    renderPart1Question();
+                } else {
+                    startPart2();
+                }
+            });
+        }
+
+        function checkPart1Answer(fingerCount) {
+            if (fingerCount >= 1 && fingerCount <= 4) {
+                gameState.holdCounter++;
+                if (gameState.holdCounter > 10) {
+                    gameState.holdCounter = 0;
+                    selectManualAnswerPart1(fingerCount);
+                }
+            } else {
+                gameState.holdCounter = 0;
+            }
+        }
+
+        // Part 2: Body Pose Questions
+        function startPart2() {
+            gameState.currentStage = 'PART2';
+            gameState.currentQuestionIdx = 0;
+            document.getElementById('section-badge').innerText = "BAHAGIAN 2: GERAKAN BADAN";
+            renderPart2Question();
+        }
+
+        function renderPart2Question() {
+            gameState.isAnswerLocked = false;
+            gameState.holdCounter = 0;
+            floatingBtnContainer.classList.add('hidden');
+            centerFeedback.classList.add('hidden');
+
+            const q = questionsPart2[gameState.currentQuestionIdx];
+            document.getElementById('question-number').innerText = `Soalan ${q.id} / 10`;
+            document.getElementById('question-title').innerText = `${q.sentence}\n${q.title}`;
+            document.getElementById('detection-hint').innerHTML = gameState.manualMode
+                ? `<i class="fa-solid fa-pointer text-yellow-400"></i> Tekan Pilihan Jawapan`
+                : `<i class="fa-solid fa-child text-yellow-400"></i> Badan / Penumbuk ✊`;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const optDiv = document.createElement('button');
+                optDiv.className = `w-full text-left p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 flex justify-between items-center transition-all cursor-pointer font-bold text-slate-100 opt-item-${idx+1}`;
+                optDiv.innerHTML = `<span>${opt}</span>`;
+                
+                optDiv.onclick = () => {
+                    if (!gameState.isAnswerLocked) {
+                        selectManualAnswerPart2(idx + 1);
+                    }
+                };
+                optsContainer.appendChild(optDiv);
+            });
+
+            updateProgressUI();
+        }
+
+        function selectManualAnswerPart2(selectedIdx) {
+            gameState.isAnswerLocked = true;
+            const q = questionsPart2[gameState.currentQuestionIdx];
+            const isCorrect = selectedIdx === q.correct;
+
+            if (isCorrect) {
+                gameState.scorePart2 += 10;
+                playSound('correct');
+                showFeedback(true, "HEBAT! GERAKAN BETUL!", q.explanation);
+            } else {
+                playSound('wrong');
+                showFeedback(false, "KURANG TEPAT!", `Jawapan betul: ${q.options[q.correct-1]}. ${q.explanation}`);
+            }
+
+            const opts = document.querySelectorAll('#options-container > button');
+            opts.forEach((el, i) => {
+                if (i + 1 === q.correct) el.className += " bg-green-600/90 border-green-300 font-black";
+                else if (i + 1 === selectedIdx) el.className += " bg-red-600/90 border-red-300";
+            });
+
+            updateProgressUI();
+            showNextButton(() => {
+                gameState.currentQuestionIdx++;
+                if (gameState.currentQuestionIdx < questionsPart2.length) {
+                    renderPart2Question();
+                } else {
+                    startPart3();
+                }
+            });
+        }
+
+        function checkPart2Answer(detectedOption) {
+            gameState.holdCounter++;
+            if (gameState.holdCounter > 10) {
+                gameState.holdCounter = 0;
+                selectManualAnswerPart2(detectedOption);
+            }
+        }
+
+        // Part 3: Continuous Falling Bubbles
+        function startPart3() {
+            gameState.currentStage = 'PART3';
+            gameState.part3CorrectFound = 0;
+            gameState.part3FoundSet.clear();
+            gameState.scorePart3 = 0;
+
+            document.getElementById('section-badge').innerText = "BAHAGIAN 3: CABARAN GELEMBUNG";
+            document.getElementById('question-number').innerText = "Soalan 11";
+            document.getElementById('question-title').innerText = "PECAHKAN 5 GELEMBUNG KATA ADJEKTIF PANCAINDERA!";
+            document.getElementById('detection-hint').innerHTML = `<i class="fa-solid fa-hand-pointer text-yellow-400"></i> Tekan / Cubit Gelembung`;
+
+            document.getElementById('options-container').innerHTML = `
+                <p class="text-xs text-yellow-300 font-bold leading-relaxed">Tekan atau cubit gelembung kata adjektif pancaindera sebelum ia jatuh!</p>
+                <div class="mt-2 text-xs font-black text-cyan-200 bg-cyan-950 p-2 rounded-xl border border-cyan-500/40 flex justify-between items-center">
+                    <span>GELEMBUNG DITEMUI:</span>
+                    <span id="bubble-count-text" class="text-yellow-300 text-sm">0 / 5</span>
+                </div>
+            `;
+
+            bubbleArea.innerHTML = '';
+            bubbleArea.classList.remove('hidden');
+
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => spawnBubble(), i * 350);
+            }
+
+            if (gameState.bubbleInterval) clearInterval(gameState.bubbleInterval);
+            gameState.bubbleInterval = setInterval(() => {
+                if (gameState.currentStage === 'PART3' && gameState.part3CorrectFound < 5) {
+                    if (document.querySelectorAll('.bubble').length < 12) {
+                        spawnBubble();
+                    }
+                }
+            }, 1000);
+
+            updateProgressUI();
+        }
+
+        function spawnBubble() {
+            if (gameState.currentStage !== 'PART3' || gameState.part3CorrectFound >= 5) return;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            let word = "";
+            let isCorrect = false;
+
+            const remainingCorrect = part3CorrectWords.filter(w => !gameState.part3FoundSet.has(w));
+            if (Math.random() < 0.45 && remainingCorrect.length > 0) {
+                word = remainingCorrect[Math.floor(Math.random() * remainingCorrect.length)];
+                isCorrect = true;
+            } else {
+                word = part3WrongWords[Math.floor(Math.random() * part3WrongWords.length)];
+                isCorrect = false;
+            }
+
+            bubble.innerText = word;
+            bubble.dataset.word = word;
+            bubble.dataset.isCorrect = isCorrect;
+
+            const size = Math.floor(Math.random() * 20) + 80;
+            const startX = Math.floor(Math.random() * (window.innerWidth - size - 40)) + 20;
+            
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${startX}px`;
+            bubble.style.top = `-${size}px`;
+
+            if (isCorrect) {
+                bubble.style.background = 'radial-gradient(circle at 35% 35%, rgba(250, 204, 21, 0.95), rgba(217, 119, 6, 0.85))';
+                bubble.style.borderColor = '#fef08a';
+                bubble.style.color = '#78350f';
+            } else {
+                bubble.style.background = 'radial-gradient(circle at 35% 35%, rgba(56, 189, 248, 0.9), rgba(3, 105, 161, 0.85))';
+                bubble.style.borderColor = '#bae6fd';
+                bubble.style.color = '#0c4a6e';
+            }
+
+            // Direct click/tap support on individual bubbles
+            bubble.onclick = (e) => {
+                popBubble(bubble, e.clientX, e.clientY);
+            };
+
+            bubbleArea.appendChild(bubble);
+
+            let topPos = -size;
+            const speed = Math.random() * 1.5 + 1.8;
+
+            function fall() {
+                if (!bubble.parentElement) return;
+                topPos += speed;
+                bubble.style.top = `${topPos}px`;
+
+                if (topPos > window.innerHeight) {
+                    bubble.remove();
+                } else {
+                    requestAnimationFrame(fall);
+                }
+            }
+            requestAnimationFrame(fall);
+        }
+
+        function popBubble(bubble, clickX, clickY) {
+            const word = bubble.dataset.word;
+            const isCorrect = bubble.dataset.isCorrect === 'true';
+
+            createSplashParticles(clickX || gameState.cursorPos.x, clickY || gameState.cursorPos.y);
+            bubble.classList.add('bubble-pop');
+            playSound('pop');
+
+            setTimeout(() => bubble.remove(), 250);
+
+            if (isCorrect && !gameState.part3FoundSet.has(word)) {
+                gameState.part3FoundSet.add(word);
+                gameState.part3CorrectFound++;
+                gameState.scorePart3 += 2;
+                playSound('correct');
+
+                document.getElementById('bubble-count-text').innerText = `${gameState.part3CorrectFound} / 5`;
+                showFeedback(true, "+2 MARKAH! HEBAT!", `Kata Adjektif Pancaindera: ${word}`);
+
+                updateProgressUI();
+
+                if (gameState.part3CorrectFound >= 5) {
+                    clearInterval(gameState.bubbleInterval);
+                    setTimeout(() => {
+                        finishGame();
+                    }, 1500);
+                }
+            } else if (!isCorrect) {
+                playSound('wrong');
+                showFeedback(false, "BELUM TEPAT!", `${word} bukan kata adjektif pancaindera. Cari lagi!`);
+            }
+        }
+
+        function finishGame() {
+            clearInterval(gameState.bubbleInterval);
+            bubbleArea.classList.add('hidden');
+            questionBox.classList.add('hidden');
+            centerFeedback.classList.add('hidden');
+
+            gameState.totalScore = gameState.scorePart1 + gameState.scorePart2 + gameState.scorePart3;
+
+            document.getElementById('final-total-score').innerText = `${gameState.totalScore} / 110`;
+            document.getElementById('final-score-b1').innerText = `${gameState.scorePart1} / 50`;
+            document.getElementById('final-score-b2').innerText = `${gameState.scorePart2} / 50`;
+            document.getElementById('final-score-b3').innerText = `${gameState.scorePart3} / 10`;
+
+            const badgeTitle = document.getElementById('badge-title');
+            const badgeDesc = document.getElementById('badge-desc');
+
+            if (gameState.totalScore >= 100) {
+                badgeTitle.innerText = "🏆 JUARA BAHASA BIKINI BOTTOM";
+                badgeDesc.innerText = "Luar biasa! Kamu berjaya mengharungi pengembaraan ini dengan cemerlang! SpongeBob bangga dengan kamu!";
+            } else if (gameState.totalScore >= 80) {
+                badgeTitle.innerText = "⭐ PAKAR KATA ADJEKTIF";
+                badgeDesc.innerText = "Hebat! Kamu mempunyai pemahaman yang sangat baik tentang kata adjektif. Teruskan kecemerlangan!";
+            } else if (gameState.totalScore >= 50) {
+                badgeTitle.innerText = "🌊 PENEROKA BAHASA";
+                badgeDesc.innerText = "Bagus! Kamu sudah menguasai sebahagian besar kata adjektif. Teruskan berlatih!";
+            } else {
+                badgeTitle.innerText = "🧽 PEMBELAJAR BIKINI BOTTOM";
+                badgeDesc.innerText = "Teruskan usaha! Kamu sedang membina pengetahuan tentang kata adjektif. Cuba lagi!";
+            }
+
+            switchScreen('RESULTS');
+        }
+
+        // --- GENERAL UI HELPERS ---
+        function updateProgressUI() {
+            const currentTotal = gameState.scorePart1 + gameState.scorePart2 + gameState.scorePart3;
+            document.getElementById('score-text').innerText = `${currentTotal} / 110`;
+        }
+
+        function showFeedback(isSuccess, title, message) {
+            centerFeedback.classList.remove('hidden');
+            const card = document.getElementById('feedback-card');
+            document.getElementById('feedback-icon').innerText = isSuccess ? '🌟' : '💡';
+            document.getElementById('feedback-title').innerText = title;
+            document.getElementById('feedback-msg').innerText = message;
+
+            if (isSuccess) {
+                card.className = "glass-panel p-6 rounded-3xl border-4 border-yellow-400 shadow-2xl animate-bounce bg-slate-900/95";
+            } else {
+                card.className = "glass-panel p-6 rounded-3xl border-4 border-cyan-400 shadow-2xl bg-slate-900/95";
+            }
+
+            setTimeout(() => {
+                centerFeedback.classList.add('hidden');
+            }, 2200);
+        }
+
+        function showNextButton(callback) {
+            floatingBtnContainer.classList.remove('hidden');
+            btnNextQuestion.onclick = () => {
+                floatingBtnContainer.classList.add('hidden');
+                callback();
+            };
+        }
+
+        // --- BUTTON EVENT BINDINGS ---
+        document.getElementById('btn-start-intro').onclick = () => switchScreen('LEARN');
+        document.getElementById('btn-learn-next').onclick = () => switchScreen('GUIDE');
+        document.getElementById('btn-guide-next').onclick = () => {
+            switchScreen('SETUP');
+            initMediaPipe();
+        };
+        
+        // Start Game via Camera
+        document.getElementById('btn-start-game').onclick = () => {
+            gameState.manualMode = false;
+            startPart1();
+        };
+
+        // Fallback Button: Start Game manually without requiring Camera/MediaPipe
+        document.getElementById('btn-fallback-game').onclick = () => {
+            gameState.manualMode = true;
+            startPart1();
+        };
+        
+        document.getElementById('btn-replay').onclick = () => {
+            gameState.scorePart1 = 0;
+            gameState.scorePart2 = 0;
+            gameState.scorePart3 = 0;
+            gameState.totalScore = 0;
+            startPart1();
+        };
+
+        document.getElementById('btn-exit').onclick = () => {
+            showModalNotice("TAMAT PERMAINAN", "Terima kasih kerana menyertai Misi Kata Adjektif di Bikini Bottom!");
+            switchScreen('INTRO');
+        };
+
+        window.onload = () => {
+            switchScreen('INTRO');
+        };
+    </script>
+</body>
+</html>
